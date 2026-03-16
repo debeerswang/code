@@ -42,7 +42,7 @@ export function ActivityChart({ data, title }: ActivityChartProps) {
               borderRadius: "12px",
               color: "#fff",
             }}
-            formatter={(value) => [`${Number(value).toFixed(1)} km`, "Distance"]}
+            formatter={(value) => [`${Number(value).toFixed(1)} mi`, "Distance"]}
           />
           <Bar
             dataKey="distance"

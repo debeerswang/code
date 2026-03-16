@@ -4,6 +4,7 @@ import type { StravaActivity } from "@/lib/strava";
 
 interface ActivityListProps {
   activities: StravaActivity[];
+  onSelect: (activity: StravaActivity) => void;
 }
 
 const sportIcons: Record<string, string> = {
@@ -25,22 +26,23 @@ function formatDuration(seconds: number): string {
 }
 
 function formatDistance(meters: number): string {
-  if (meters < 1000) return `${meters.toFixed(0)}m`;
-  return `${(meters / 1000).toFixed(2)} km`;
+  const miles = meters / 1609.344;
+  if (miles < 0.1) return `${meters.toFixed(0)}m`;
+  return `${miles.toFixed(2)} mi`;
 }
 
 function formatPace(speedMs: number, type: string): string {
   if (type === "Ride" || type === "VirtualRide") {
-    return `${(speedMs * 3.6).toFixed(1)} km/h`;
+    return `${(speedMs * 2.23694).toFixed(1)} mph`;
   }
   if (speedMs === 0) return "-";
-  const paceSecsPerKm = 1000 / speedMs;
-  const paceMin = Math.floor(paceSecsPerKm / 60);
-  const paceSec = Math.floor(paceSecsPerKm % 60);
-  return `${paceMin}:${paceSec.toString().padStart(2, "0")} /km`;
+  const paceSecsPerMile = 1609.344 / speedMs;
+  const paceMin = Math.floor(paceSecsPerMile / 60);
+  const paceSec = Math.floor(paceSecsPerMile % 60);
+  return `${paceMin}:${paceSec.toString().padStart(2, "0")} /mi`;
 }
 
-export function ActivityList({ activities }: ActivityListProps) {
+export function ActivityList({ activities, onSelect }: ActivityListProps) {
   return (
     <div className="bg-gray-900 rounded-2xl border border-gray-800 overflow-hidden">
       <div className="p-6 border-b border-gray-800">
@@ -50,7 +52,8 @@ export function ActivityList({ activities }: ActivityListProps) {
         {activities.map((activity) => (
           <div
             key={activity.id}
-            className="p-4 px-6 hover:bg-gray-800/50 transition-colors"
+            className="p-4 px-6 hover:bg-gray-800/50 transition-colors cursor-pointer"
+            onClick={() => onSelect(activity)}
           >
             <div className="flex items-center justify-between">
               <div className="flex items-center gap-3">

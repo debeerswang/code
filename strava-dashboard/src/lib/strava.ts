@@ -49,11 +49,13 @@ export async function getAthleteStats(accessToken: string, athleteId: number) {
   return res.json();
 }
 
-export async function getActivities(accessToken: string, page = 1, perPage = 30) {
+export async function getActivities(accessToken: string, page = 1, perPage = 30, after?: number, before?: number) {
   const params = new URLSearchParams({
     page: String(page),
     per_page: String(perPage),
   });
+  if (after !== undefined) params.set("after", String(after));
+  if (before !== undefined) params.set("before", String(before));
   const res = await fetch(`${STRAVA_API_BASE}/athlete/activities?${params}`, {
     headers: { Authorization: `Bearer ${accessToken}` },
   });
@@ -86,6 +88,48 @@ export interface StravaActivity {
   max_heartrate?: number;
   suffer_score?: number;
   kudos_count: number;
+}
+
+export interface StravaClubActivity {
+  athlete: { firstname: string; lastname: string };
+  name: string;
+  distance: number;
+  moving_time: number;
+  elapsed_time: number;
+  total_elevation_gain: number;
+  type: string;
+  sport_type: string;
+  start_date_local?: string;
+  start_date?: string;
+}
+
+export interface StravaClub {
+  id: number;
+  name: string;
+  profile: string;
+  description: string;
+  sport_type: string;
+  city: string;
+  state: string;
+  country: string;
+  member_count: number;
+}
+
+export async function getClub(accessToken: string, clubId: string) {
+  const res = await fetch(`${STRAVA_API_BASE}/clubs/${clubId}`, {
+    headers: { Authorization: `Bearer ${accessToken}` },
+  });
+  if (!res.ok) throw new Error("Failed to fetch club");
+  return res.json() as Promise<StravaClub>;
+}
+
+export async function getClubActivities(accessToken: string, clubId: string, page = 1, perPage = 200) {
+  const params = new URLSearchParams({ page: String(page), per_page: String(perPage) });
+  const res = await fetch(`${STRAVA_API_BASE}/clubs/${clubId}/activities?${params}`, {
+    headers: { Authorization: `Bearer ${accessToken}` },
+  });
+  if (!res.ok) throw new Error("Failed to fetch club activities");
+  return res.json() as Promise<StravaClubActivity[]>;
 }
 
 export interface StravaAthlete {

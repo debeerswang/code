@@ -10,9 +10,13 @@ export async function GET(request: NextRequest) {
 
   const page = Number(request.nextUrl.searchParams.get("page") || "1");
   const perPage = Number(request.nextUrl.searchParams.get("per_page") || "50");
+  const afterParam = request.nextUrl.searchParams.get("after");
+  const beforeParam = request.nextUrl.searchParams.get("before");
+  const after = afterParam ? Number(afterParam) : undefined;
+  const before = beforeParam ? Number(beforeParam) : undefined;
 
   try {
-    const activities = await getActivities(session.access_token, page, perPage);
+    const activities = await getActivities(session.access_token, page, perPage, after, before);
     return NextResponse.json(activities);
   } catch {
     return NextResponse.json({ error: "Failed to fetch activities" }, { status: 500 });
